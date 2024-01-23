@@ -1,0 +1,1 @@
+ffmpeg -i mp2op1.mpg -cv mpeg1video -bv 15000k -ca copy output.mpg
