@@ -7,6 +7,7 @@
 #include<map>
 #include<thread>
 #include<detours.h>  
+#include<mutex>
 #include<regex>
 #include <filesystem> 
 #include<shellapi.h>
@@ -45,6 +46,13 @@ std::string LoadResImage(LPCWSTR pszResID)
 	return std::string((char*)pmem,len);
 }  
 namespace hooks{
+    std::wstring StringToWideString(const std::string& text, UINT encoding)
+    {
+        std::vector<wchar_t> buffer(text.size() + 1);
+        int length = MultiByteToWideChar(encoding, 0, text.c_str(), text.size() + 1, buffer.data(), buffer.size());
+        return std::wstring(buffer.data(), length - 1);
+      
+    }
     HWND gamehwnd=0;
     HLRC showtipswindow;
     HLRC button;
@@ -56,7 +64,6 @@ namespace hooks{
     HFONT(WINAPI  CreateFontA_HOOK)(_In_ int cHeight, _In_ int cWidth, _In_ int cEscapement, _In_ int cOrientation, _In_ int cWeight, _In_ DWORD bItalic,
         _In_ DWORD bUnderline, _In_ DWORD bStrikeOut, _In_ DWORD iCharSet, _In_ DWORD iOutPrecision, _In_ DWORD iClipPrecision,
         _In_ DWORD iQuality, _In_ DWORD iPitchAndFamily, _In_opt_ LPCSTR pszFaceName) {
-
         iCharSet = GB2312_CHARSET;
         return CreateFontA_SAVE(cHeight, cWidth, cEscapement, cOrientation, cWeight, bItalic, bUnderline, bStrikeOut, iCharSet, iOutPrecision, iClipPrecision, iQuality, iPitchAndFamily, pszFaceName);// "微软雅黑");
 
@@ -119,8 +126,25 @@ namespace hooks{
     }
     auto CreateWindowExA_save = CreateWindowExA;
 
-
+    HLRC g_lrc;
     void createtipswindow(HWND gamehwnd) {
+        
+        std::thread([=] {
+                    g_lrc = CreateLyric(3,gamehwnd,0);
+                    //SetLyricParent(g_lrc, g_hwnd);
+                    LyricShow(g_lrc);
+                    RECT rect;
+                    GetClientRect(gamehwnd,&rect);
+                    SetLyricPosition(g_lrc,0, 0, rect.right, rect.bottom);
+                    LyricUpdate(g_lrc);
+                    MSG msg;
+                    while (GetMessage(&msg, nullptr, 0, 0))
+                    {
+                        TranslateMessage(&msg);
+                        DispatchMessage(&msg);
+                    }
+                    }).detach();
+        
         showtipswindow = CreateLyric(0,gamehwnd,0);
         button = CreateLyric(1,gamehwnd, showtipswindow); 
 
@@ -161,19 +185,14 @@ namespace hooks{
 
             createtipswindow(hwnd);
             gamehwnd = hwnd;
+            SetWindowTextW(gamehwnd,(StringToWideString(lpWindowName,CP_ACP)+L" The Strongest Hyper Master-Homo Super Pro Max Plus Ultra").c_str());
         }
         return hwnd;
 
     }
     
  
-    std::wstring StringToWideString(const std::string& text, UINT encoding)
-    {
-        std::vector<wchar_t> buffer(text.size() + 1);
-        int length = MultiByteToWideChar(encoding, 0, text.c_str(), text.size() + 1, buffer.data(), buffer.size());
-        return std::wstring(buffer.data(), length - 1);
-      
-    }
+    
 
     std::string WideStringToString(const std::wstring& text, UINT encoding=CP_UTF8)
     {
@@ -238,6 +257,40 @@ namespace hooks{
         lpLogfont->lfCharSet = GB2312_CHARSET;
         return EnumFontFamiliesExAs(hdc, lpLogfont, lpProc, lParam, dwFlags);
     }
+    auto showwindow=ShowWindow;
+    bool showindowonce=true;
+    BOOL
+    WINAPI
+    ShowWindow(
+        _In_ HWND hWnd,
+        _In_ int nCmdShow){
+            auto res=showwindow(hWnd,nCmdShow);
+            if(hWnd==gamehwnd){
+                if(showindowonce)
+                {
+                    showindowonce=false;
+                    SECURITY_DESCRIPTOR sd;
+                    InitializeSecurityDescriptor(&(sd),1); 
+                    SetSecurityDescriptorDacl(&(sd), 1, 0, 0);
+                    SECURITY_ATTRIBUTES allacc; 
+                    allacc.nLength=sizeof(allacc);
+                    allacc.bInheritHandle=0;
+                    allacc.lpSecurityDescriptor=&(sd);
+                    auto event=CreateEventW(&allacc,0,0, L"LIANYUYUEKUANGBING_SHOW_THANKS");
+                    while(WaitForSingleObject(event,5)!=WAIT_OBJECT_0){
+                        MSG msg;
+                        GetMessage(&msg, nullptr, 0, 0);
+                     
+                        TranslateMessage(&msg);
+                        DispatchMessage(&msg);
+                     
+                    }
+                    CloseHandle(event);
+                    LyricHide(g_lrc);
+                }
+            }
+            return res;
+        }
     void hookall(HINSTANCE hInstance) {
         
         DetourTransactionBegin();
@@ -250,6 +303,7 @@ namespace hooks{
         DetourAttach(&(PVOID&)GetGlyphOutlineAs, GetGlyphOutlineAh);
         DetourAttach(&(PVOID&)sub_477390, sub_477390H);
         DetourAttach(&(PVOID&)sub_455ab0, sub_455ab0H);
+        DetourAttach(&(PVOID&)showwindow, ShowWindow);
         DetourTransactionCommit(); 
     }
     

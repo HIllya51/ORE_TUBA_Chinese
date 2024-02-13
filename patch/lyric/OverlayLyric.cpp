@@ -330,7 +330,11 @@ BOOL OverlayLyric::Update()
 		auto bmp=LoadResImage(L"TIPSPNG");
 		graphics.DrawImage(bmp, 0, 0, bmp->GetWidth(), bmp->GetHeight());
 	}
-
+	else if(m_type==3){
+		auto bmp=LoadResImage(L"showatfirst");
+		graphics.DrawImage(bmp, 0, 0, bmp->GetWidth(), bmp->GetHeight());
+		graphics.DrawImage(bmp, 0, 0, winSize.cx, winSize.cy);
+	}
 	::POINT srcPoint = { 0, 0 };
 	BLENDFUNCTION blendFunc32bpp = { 0 };
 	blendFunc32bpp.BlendOp = AC_SRC_OVER;
@@ -368,9 +372,27 @@ void OverlayLyric::HideWnd()
 {
 	this->Hide();
 }
-
+#include<mutex>
 LRESULT OverlayLyric::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 	HWND hWnd = GetHandle();
+	static std::mutex _m;
+	static bool hided = false;
+	auto hideandnotify = [this]() {
+		std::lock_guard<std::mutex> _(_m);
+		if (hided)return;
+		hided = true;
+		HideWnd();
+		SECURITY_DESCRIPTOR sd;
+		InitializeSecurityDescriptor(&(sd), 1);
+		SetSecurityDescriptorDacl(&(sd), 1, 0, 0);
+		SECURITY_ATTRIBUTES allacc;
+		allacc.nLength = sizeof(allacc);
+		allacc.bInheritHandle = 0;
+		allacc.lpSecurityDescriptor = &(sd);
+		auto event=CreateEventW(&allacc, 0, 0, L"LIANYUYUEKUANGBING_SHOW_THANKS");
+		SetEvent(event);
+		CloseHandle(event);
+	};
 	switch (message)
 	{
 	case WM_CREATE:
@@ -389,11 +411,24 @@ LRESULT OverlayLyric::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) 
 		SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
 		SetTimer(hWnd, IDT_MOUSETRAP, 100, NULL);
+		std::thread([hideandnotify]() {
+			
+			Sleep(5000);
+			hideandnotify();
+
+			}).detach();
 	}
 	break;
+	case WM_KEYDOWN: {
+		if (wParam == VK_RETURN || wParam == VK_CONTROL || wParam == VK_SHIFT) {
+			hideandnotify();
+		} 
+		break;
+	}
 	case WM_LBUTTONDOWN:  //��갴��
 	{
 		ShowWindow(hWnd, SW_HIDE);
+		hideandnotify();
 		//SetCapture(hWnd);	//��ռ�����Ϣ
 		//mMouseXY.y = HIWORD(lParam);
 		//mMouseXY.x = LOWORD(lParam);
@@ -449,6 +484,9 @@ LRESULT OverlayLyric::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) 
 		// TODO �����ֱ��ʸı��¼�
 	}
 	break;
+	case WM_CLOSE: {
+		hideandnotify();
+	}
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
