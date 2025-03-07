@@ -185,7 +185,7 @@ namespace hooks{
 
             createtipswindow(hwnd);
             gamehwnd = hwnd;
-            SetWindowTextW(gamehwnd,(StringToWideString(lpWindowName,CP_ACP)+L" The Strongest Hyper Master-Homo Super Pro Max Plus Ultra").c_str());
+            SetWindowTextW(gamehwnd,(StringToWideString(lpWindowName,CP_ACP)+L" The Strongest Hyper MASTER-HOMO × BRANDNEW THE-RICE").c_str());
         }
         return hwnd;
 
