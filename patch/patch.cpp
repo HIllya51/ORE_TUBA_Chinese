@@ -201,6 +201,7 @@ namespace hooks{
         return buffer.data();
     }
     auto sub_455ab0=0x455ab0;
+    nlohmann::json tips = nlohmann::json::parse(LoadResImage(L"TIPSJSON"));
     void __stdcall sub_455ab0H_1(char* text)
     {  
         if (strcmp(savelast, text) == 0) return ;
@@ -208,7 +209,6 @@ namespace hooks{
 
         std::string t = text;
         t = WideStringToString(StringToWideString(t, 936));
-        nlohmann::json tips = nlohmann::json::parse(LoadResImage(L"TIPSJSON"));
         
         if (tips.find(t)!= tips.end()) {
             std::string tipstext = tips.at(t);
