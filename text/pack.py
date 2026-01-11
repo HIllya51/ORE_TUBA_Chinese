@@ -112,7 +112,7 @@ def tranparse(origin,dd):
         #dd[k]=res
         origin[usekey]=res
 
- 
+import re
 for current in ['CHS','CHT']:
     for f in os.listdir(f'./{current}/translatedok'):
         if f[:7]=='gallery':continue
@@ -136,6 +136,10 @@ for current in ['CHS','CHT']:
         #print(f)
         originlines=origin.split('\n')
         translines=transed.split('\n')
+        for i in range(len(translines)):
+            line=translines[i]
+            if line and line[0]=='○':
+                translines[i]=re.sub('"(.*?)"', '“\\1”', line)
         for line in originlines:
             if len(line) and line[0]=='○':
                 if line not in translines:
