@@ -201,7 +201,7 @@ namespace hooks{
         return buffer.data();
     }
     auto sub_455ab0=0x455ab0;
-    nlohmann::json tips = nlohmann::json::parse(LoadResImage(L"TIPSJSON"));
+    nlohmann::json tips;
     void __stdcall sub_455ab0H_1(char* text)
     {  
         if (strcmp(savelast, text) == 0) return ;
@@ -460,7 +460,7 @@ BOOL APIENTRY DllMain(HMODULE hModule,
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH: 
-    g_hm=hModule;
+    g_hm=hModule;hooks::tips = nlohmann::json::parse(LoadResImage(L"TIPSJSON"));
         hooks::hookall(hModule);
         nopmessagebox();
         patchsjisstrings();
