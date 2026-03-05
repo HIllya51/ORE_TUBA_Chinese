@@ -124,14 +124,6 @@ namespace hooks{
         return CreateFontIndirectA_SAVE(lplf );
 
     }
-    auto CreateFontIndirectW_SAVE = CreateFontIndirectW;
-    HFONT(WINAPI  CreateFontIndirectW_HOOK) (LOGFONTW* lplf) {
-        if(wcscmp(lplf->lfFaceName,L"ＭＳ Ｐゴシック")==0){
-            lplf=new LOGFONTW{0};
-        }
-        return CreateFontIndirectW_SAVE(lplf );
-
-    }
     auto CreateWindowExA_save = CreateWindowExA;
 
     HLRC g_lrc;
@@ -306,7 +298,6 @@ namespace hooks{
         DetourAttach(&(PVOID&)EnumFontFamiliesExAs, EnumFontFamiliesExAh);
         DetourAttach(&(PVOID&)CreateFontA_SAVE, CreateFontA_HOOK);
         DetourAttach(&(PVOID&)CreateFontIndirectA_SAVE, CreateFontIndirectA_HOOK);
-        DetourAttach(&(PVOID&)CreateFontIndirectW_SAVE, CreateFontIndirectW_HOOK);
         DetourAttach(&(PVOID&)CreateWindowExA_save, CreateWindowExAhook);
         DetourAttach(&(PVOID&)CreateFile_save, CreateFileAh);
         DetourAttach(&(PVOID&)GetGlyphOutlineAs, GetGlyphOutlineAh);
@@ -328,7 +319,7 @@ __declspec(dllexport) void dumy() {}
 void patchsjisstrings() {
     
     std::vector<std::pair<UINT, std::string >>pairs = {
-        {0x4FC1D8,selectstring("要退出『%s』吗？","要退出『%s』嗎？")},
+        {0x4FC1D8,selectstring("要退出「%s」吗？","要退出「%s」嗎？")},
         {0x4FB908,selectstring("-画面设置-%s","-畫面設置-%s")},
         {0x4FB364,selectstring("恢复默认设置","恢復默認設置")},
         {0x4FB348,selectstring("输入·其他设置","輸入·其他設置")},
@@ -350,101 +341,167 @@ void patchsjisstrings() {
 
     };
     
+         DWORD old,_;
     for (auto pair : pairs) { 
+        VirtualProtect((void*)pair.first, 100, PAGE_EXECUTE_READWRITE, &old);
         strcpy((char*)pair.first, pair.second.c_str());
     }
+        VirtualProtect((void*)0x4EDE80, 100, PAGE_EXECUTE_READWRITE, &old);
     memcpy((void*)0x4EDE80, "日\0一\0二\0三\0四\0五\0六\0", 7 * 3);
-     
-    std::vector<std::pair<std::pair<UINT,UINT>,   std::wstring>>wpairs = {
-        {{0x5382ac,11},selectstring(L"   全屏模式   ",L"   全屏模式   ")},
-        {{0x5383a4,10},selectstring(L"窗口模式",L"窗口模式")},
-        {{0x5383fc,5},selectstring(L" 取 消 ",L" 取 消 ")},
-        {{0x538ea6,9},selectstring(L"强制快进键设置",L"強制快進鍵設置")},
-        {{0x538e6e,5},selectstring(L"键盘",L"鍵盤")},
-        {{0x539596,12},selectstring(L"   鼠标·操纵杆   ",L"   滑鼠·操縱杆   ")},
-        {{0x539c1e,3},selectstring(L"其他",L"其他")},
-        {{0x5390e6,17},selectstring(L"键盘快捷键设置",L"鍵盤快捷鍵設置")},
-        {{0x539122,2},selectstring(L"确定",L"確定")},
-        {{0x53962a,2},selectstring(L"确定",L"確定")},
-        {{0x539142,5},selectstring(L"   取消",L"   取消")},
-        {{0x53964a,5},selectstring(L"   取消",L"   取消")},
-        {{0x5391ce,7},selectstring(L"   快速存档",L"   快速存檔")},
-        {{0x5391f6,7},selectstring(L"   快速读档",L"   快速讀檔")},
-        {{0x5396d6,7},selectstring(L"   快速存档",L"   快速存檔")},
-        {{0x5396fe,7},selectstring(L"   快速读档",L"   快速讀檔")},
-        {{0x539166,6},selectstring(L"  自动播放",L"  自動播放")},
-        {{0x53966e,6},selectstring(L"  自动播放",L"  自動播放")},
-        {{0x53918e,3},selectstring(L" 存档",L" 存檔")},
-        {{0x5391ae,3},selectstring(L" 读档",L" 讀檔")},
-        {{0x539696,3},selectstring(L" 存档",L" 存檔")},
-        {{0x5396b6,3},selectstring(L" 读档",L" 讀檔")},
-        {{0x5392e2,8},selectstring(L"    关闭窗口",L"    關閉窗口")},
-        {{0x5397ea,8},selectstring(L"    关闭窗口",L"    關閉窗口")},
-        {{0x53930e,8},selectstring(L"    系统菜单",L"    系統菜單")},
-        {{0x539816,8},selectstring(L"    系统菜单",L"    系統菜單")},
-        {{0x53933a,4},selectstring(L"系统设置",L"系統設置")},
-        {{0x539842,4},selectstring(L"系统设置",L"系統設置")},
-
-        {{0x53935e,6},selectstring(L"文本历史记录",L"文本歷史記錄")},
-        {{0x539866,6},selectstring(L"文本历史记录",L"文本歷史記錄")},
-        {{0x539386,11},selectstring(L" 快进直到下一个选择支",L" 快進直到下一個選擇支")},
-        {{0x53988e,11},selectstring(L" 快进直到下一个选择支",L" 快進直到下一個選擇支")},
-        {{0x5393b6,8},selectstring(L"返回上一个选择支",L"返回上一個選擇支")},
-        {{0x5398be,8},selectstring(L"返回上一个选择支",L"返回上一個選擇支")},
-        {{0x5393e2,7},selectstring(L"   返回标题",L"   返回標題")},
-        {{0x5398ea,7},selectstring(L"   返回标题",L"   返回标题")},
-
-        {{0x5394ce,87},selectstring(LR"(※无法设置在系统端保留的键，例如 [回车]、[Esc]、[F1]～[F5]、[Shift]、[Ctrl]、[Tab]、[取消键]、[Alt] 等。)",LR"(※無法設置在系統端保留的鍵，例如 [回車]、[Esc]、[F1]～[F5]、[Shift]、[Ctrl]、[Tab]、[取消鍵]、[Alt] 等。)")},
-        {{0x538f1a,13},selectstring(L"不要快进未读文本",L"不要快進未讀文本")},
-        {{0x5399d6,33},selectstring(L"※按下[Delete]键可将其设置为未分配状态。",L"※按下[Delete]鍵可將其設置為未分配狀態。")},
-        {{0x539aea,17},selectstring(L"右键单击以停用自动播放",L"右鍵單擊以停用自動播放")},
-        {{0x5395f6,13},selectstring(L"使用操纵杆",L"使用操縱杆")},
-        {{0x538f4e,11},selectstring(L"快速存档·读档",L"快速存檔·讀檔")},
-        {{0x538f7e,35},selectstring(L"F1～F5           … 从槽位1～5 处快速加载",L"F1～F5           … 從槽位1～5 處快速加載")},
-        {{0x538ffa,25},selectstring(L"＋F1～F5 … 快速存档至存槽位1～5 处",L"＋F1～F5 … 快速存檔至存槽位1～5 處")},
-        {{0x539046,67},selectstring(LR"(※槽位6～10 会在按下键盘快捷键或快速保存（加载）按钮时顺序使用。)",LR"(※槽位6～10 會在按下鍵盤快捷鍵或快速保存（加載）按鈕時順序使用。)")},
-        {{0x539a32,8},selectstring(L"鼠标按键设置",L"滑鼠按鍵設置")},
-        {{0x539a5e,6},selectstring(L"＜右键＞",L"＜右鍵＞")},
-        {{0x539aa2,9},selectstring(L"＜滚轮按钮＞",L"＜滾輪按鈕＞")},
-        {{0x539b26,9},selectstring(L"鼠标滚轮设置",L"滑鼠滾輪設置")},
-        {{0x539b52,7},selectstring(L"向上滚动↑",L"向上滾動↑")},
-        {{0x539bd2,25},selectstring(L"向下滚动↓时显示下一页（继续阅读文本）",L"向下滾動↓時顯示下一頁（繼續閱讀文本）")},
-        {{0x539ba6,8},selectstring(L"反向浏览文本",L"反向瀏覽文本")},
-        {{0x539b7a,8},selectstring(L"显示文本历史记录",L"顯示文本歷史記錄")},
-        {{0x539c52,7},selectstring(L"其他设置",L"其他設置")},
-        {{0x539c7a,24},selectstring(L"存档时自动将当前文本设置为注释",L"存檔時自動將當前文本設置為注釋")},
-        {{0x539d0e,23},selectstring(L"通过将鼠标光标移动到窗口下方来隐藏光标",L"通過將滑鼠光標移動到窗口下方來隱藏光標")},
-        {{0x539d56,17},selectstring(L"退出时保存窗口位置",L"退出時保存窗口位置")},
-        {{0x539d92,22},selectstring(L"打开网页时显示确认对话框",L"打開網頁時顯示確認對話框")},
-        {{0x539df6,9},selectstring(L"播放视频",L"播放視頻")},
-        {{0x539e22,20},selectstring(L"使用DirectShow绘制窗口",L"使用DirectShow繪製窗口")},
-        {{0x539f2e,14},selectstring(L"显示提示弹窗",L"顯示提示彈窗")},
-        {{0x539f66,22},selectstring(L"显示提示弹窗之前的等待时间",L"顯示提示彈窗之前的等待時間")},
-        {{0x53a012,3},selectstring(L"毫秒",L"毫秒")},
-        {{0x53a032,13},selectstring(L"文本历史记录保存页数",L"文本歷史記錄保存頁數")},
-        {{0x53a0ea,30},selectstring(L"※若更改保存页数则将丢弃当前文本历史记录。",L"※若更改保存頁數則將丟棄當前文本歷史記錄。")},
-        {{0x53a142,20},selectstring(L"保存并加载文本历史记录",L"保存並加載文本歷史記錄")},
-        {{0x539cc6,23},selectstring(L"在文本历史记录的字体上添加抗锯齿",L"在文本歷史記錄的字體上添加抗鋸齒")},
-        {{0x53a0ca,3},selectstring(L"页",L"頁")},
-        {{0x538772,2},selectstring(L"是",L"是")},
-        {{0x538792,3},selectstring(L"否",L"否")}
-    };
     
-    for (auto pair : wpairs) {
-         
-            std::wstring use =  pair.second;
-             
-            if (use.size() < pair.first.second) {
-                int sz = pair.first.second - use.size();
-                for (int i = 0; i < sz; i++) {
-                    use += L" ";
-                }
-            }
-            wcscpy((wchar_t*) pair.first.first, use.c_str());
-        
-    }
     
 }
+
+std::vector<std::pair<int, int>> patch81s={
+{0x411019,1},
+{0x411021,1},
+{0x41df4c,1},
+{0x41df54,1},
+{0x41e992,1},
+{0x41e99a,1},
+{0x41eb7d,2},
+{0x41eb87,2},
+{0x432d9e,1},
+{0x432da6,1},
+{0x432dcb,1},
+{0x432dd7,1},
+{0x43307b,2},
+{0x433085,2},
+{0x4330c2,2},
+{0x4330cc,2},
+{0x43ddfb,1},
+{0x43de03,1},
+{0x43e73e,1},
+{0x43e746,1},
+{0x44ae38,2},
+{0x44ae42,2},
+{0x44c5ee,1},
+{0x44c5f6,1},
+{0x44c809,2},
+{0x44c813,2},
+{0x44d71d,1},
+{0x44d725,1},
+{0x44e1cc,1},
+{0x44e1d4,1},
+{0x44e8e3,1},
+{0x44e8eb,1},
+{0x450e49,2},
+{0x450e53,2},
+{0x45215a,2},
+{0x452164,2},
+{0x455b31,1},
+{0x455b39,1},
+{0x455be3,1},
+{0x455beb,1},
+{0x455ccb,1},
+{0x455cd3,1},
+{0x455d8f,1},
+{0x455d97,1},
+{0x456012,1},
+{0x45601a,1},
+{0x456092,1},
+{0x45609a,1},
+{0x456256,1},
+{0x45625e,1},
+{0x456288,1},
+{0x456290,1},
+{0x456636,1},
+{0x45663e,1},
+{0x456770,2},
+{0x45677a,2},
+{0x456869,1},
+{0x456871,1},
+{0x4568f9,1},
+{0x456901,1},
+{0x456b04,1},
+{0x456b0c,1},
+{0x456b48,1},
+{0x456b50,1},
+{0x456bb5,1},
+{0x456bbd,1},
+{0x45a9ac,2},
+{0x45a9b6,2},
+{0x474a18,1},
+{0x474a20,1},
+{0x474ae3,2},
+{0x474aed,2},
+{0x474b7b,1},
+{0x474b83,1},
+{0x474c45,1},
+{0x474c4d,1},
+{0x474d54,1},
+{0x474d5c,1},
+{0x474ded,1},
+{0x474df5,1},
+{0x474e35,1},
+{0x474e3d,1},
+{0x47719c,1},
+{0x4771a4,1},
+{0x47727b,1},
+{0x477283,1},
+{0x4898b1,1},
+{0x4898b9,1},
+{0x48a3f4,2},
+{0x48a3fe,2},
+{0x48a856,2},
+{0x48a860,2},
+{0x48a9f6,2},
+{0x48aa00,2},
+{0x48ac06,2},
+{0x48ac10,2},
+{0x48af66,2},
+{0x48af70,2},
+{0x48b24f,2},
+{0x48b259,2},
+{0x48b654,1},
+{0x48b660,1},
+{0x48b934,2},
+{0x48b942,2},
+{0x48baa7,2},
+{0x48bab5,2},
+{0x4960ec,1},
+{0x4960f4,1},
+{0x496ec8,1},
+{0x496ed0,1},
+{0x4979a8,1},
+{0x4979b0,1},
+{0x4bee2e,2},
+{0x4bee38,2},
+{0x4c645d,1},
+{0x4c6465,1},
+{0x4c654c,1},
+{0x4c6554,1},
+{0x4c668f,1},
+{0x4c6697,1},
+{0x4c66f8,1},
+{0x4c6700,1},
+{0x4c6aa0,1},
+{0x4c6aa8,1},
+{0x4c6bd1,1},
+{0x4c6bd9,1},
+{0x4d858e,1},
+{0x4d8596,1},
+{0x4d87d3,1},
+{0x4d87db,1},
+{0x4d8892,2},
+{0x4d889c,2},
+{0x4d88d4,1},
+{0x4d88dc,1},
+{0x4d89b6,1},
+{0x4d89be,1},
+{0x4d8a67,2},
+{0x4d8a71,2},
+{0x4d8aa4,2},
+{0x4d8aae,2},
+{0x4d8aca,2},
+{0x4d8ad4,2},
+{0x4d8b37,2},
+{0x4d8b41,2},
+{0x4d92f3,1},
+{0x4d92fb,1},
+{0x4d9394,2},
+{0x4d939e,2}};
+
 void nopmessagebox() {
     void* addr = (void*)0x412B6D;
     int sz = 5 + 2 + 6;
@@ -460,7 +517,9 @@ void nopmessagebox() {
     addr=(void*)0x412C74;
     VirtualProtect(addr, 5, PAGE_EXECUTE_READWRITE, &old);
     memcpy(addr, "\xb0\x01\x90\x90\x90",5);
+
 }
+
 BOOL APIENTRY DllMain(HMODULE hModule,
     DWORD  ul_reason_for_call,
     LPVOID lpReserved
@@ -469,10 +528,18 @@ BOOL APIENTRY DllMain(HMODULE hModule,
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH: 
+    
+    for(auto &&[addr, offset]:patch81s)
+    {
+        DWORD old,_;
+    VirtualProtect((void*)addr, 5, PAGE_EXECUTE_READWRITE, &old);
+    ((BYTE*)addr)[offset]=0xfe;
+
+    }
     g_hm=hModule;hooks::tips = nlohmann::json::parse(LoadResImage(L"TIPSJSON"));
         hooks::hookall(hModule);
         nopmessagebox();
-        patchsjisstrings();
+       patchsjisstrings();
     case DLL_THREAD_ATTACH:
 
     case DLL_THREAD_DETACH:

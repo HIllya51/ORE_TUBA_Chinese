@@ -1,0 +1,2 @@
+1. 用RisohEditor导入ORE_TUBA.rc，将UI汉化
+2. 用CFFExplorer添加dll
