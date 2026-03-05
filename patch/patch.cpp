@@ -59,8 +59,8 @@ namespace hooks{
 
     char savelast[4096] = { 0 };
     HWND galwindow = 0;
-    auto CreateFontA_SAVE = CreateFontA;
     auto CreateFile_save = CreateFileA;
+    auto CreateFontA_SAVE = CreateFontA;
     HFONT(WINAPI  CreateFontA_HOOK)(_In_ int cHeight, _In_ int cWidth, _In_ int cEscapement, _In_ int cOrientation, _In_ int cWeight, _In_ DWORD bItalic,
         _In_ DWORD bUnderline, _In_ DWORD bStrikeOut, _In_ DWORD iCharSet, _In_ DWORD iOutPrecision, _In_ DWORD iClipPrecision,
         _In_ DWORD iQuality, _In_ DWORD iPitchAndFamily, _In_opt_ LPCSTR pszFaceName) {
@@ -68,7 +68,7 @@ namespace hooks{
         return CreateFontA_SAVE(cHeight, cWidth, cEscapement, cOrientation, cWeight, bItalic, bUnderline, bStrikeOut, iCharSet, iOutPrecision, iClipPrecision, iQuality, iPitchAndFamily, pszFaceName);// "微软雅黑");
 
     }
-
+    
     auto GetGlyphOutlineAs =  GetGlyphOutlineA;
     DWORD WINAPI GetGlyphOutlineAh(__in HDC hdc,
         __in UINT uChar,
@@ -122,6 +122,14 @@ namespace hooks{
         lplf->lfCharSet = GB2312_CHARSET;
        // *(char*)(lplf->lfFaceName) = *(char*)"微软雅黑";
         return CreateFontIndirectA_SAVE(lplf );
+
+    }
+    auto CreateFontIndirectW_SAVE = CreateFontIndirectW;
+    HFONT(WINAPI  CreateFontIndirectW_HOOK) (LOGFONTW* lplf) {
+        if(wcscmp(lplf->lfFaceName,L"ＭＳ Ｐゴシック")==0){
+            lplf=new LOGFONTW{0};
+        }
+        return CreateFontIndirectW_SAVE(lplf );
 
     }
     auto CreateWindowExA_save = CreateWindowExA;
@@ -298,6 +306,7 @@ namespace hooks{
         DetourAttach(&(PVOID&)EnumFontFamiliesExAs, EnumFontFamiliesExAh);
         DetourAttach(&(PVOID&)CreateFontA_SAVE, CreateFontA_HOOK);
         DetourAttach(&(PVOID&)CreateFontIndirectA_SAVE, CreateFontIndirectA_HOOK);
+        DetourAttach(&(PVOID&)CreateFontIndirectW_SAVE, CreateFontIndirectW_HOOK);
         DetourAttach(&(PVOID&)CreateWindowExA_save, CreateWindowExAhook);
         DetourAttach(&(PVOID&)CreateFile_save, CreateFileAh);
         DetourAttach(&(PVOID&)GetGlyphOutlineAs, GetGlyphOutlineAh);
@@ -319,7 +328,7 @@ __declspec(dllexport) void dumy() {}
 void patchsjisstrings() {
     
     std::vector<std::pair<UINT, std::string >>pairs = {
-        {0x4FC1D8,selectstring("要退出「%s」吗？","要退出「%s」嗎？")},
+        {0x4FC1D8,selectstring("要退出『%s』吗？","要退出『%s』嗎？")},
         {0x4FB908,selectstring("-画面设置-%s","-畫面設置-%s")},
         {0x4FB364,selectstring("恢复默认设置","恢復默認設置")},
         {0x4FB348,selectstring("输入·其他设置","輸入·其他設置")},
