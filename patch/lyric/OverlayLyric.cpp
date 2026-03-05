@@ -427,8 +427,9 @@ LRESULT OverlayLyric::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) 
 	}
 	case WM_LBUTTONDOWN:  //��갴��
 	{
+		if(m_type!=1){
 		ShowWindow(hWnd, SW_HIDE);
-		hideandnotify();
+		hideandnotify();}
 		//SetCapture(hWnd);	//��ռ�����Ϣ
 		//mMouseXY.y = HIWORD(lParam);
 		//mMouseXY.x = LOWORD(lParam);

@@ -39,13 +39,13 @@ void SetLyricFontW(HLRC lrc, const wchar_t* fontName, float fontSize)
 	pLrc->SetFont(fontName, fontSize);
 }
 
-EXPORT_API void LyricShow(HLRC lrc)
+ void LyricShow(HLRC lrc)
 {
 	OverlayLyric* pLrc = (OverlayLyric*)lrc;
 	pLrc->ShowWnd();
 }
 
-EXPORT_API void LyricHide(HLRC lrc)
+ void LyricHide(HLRC lrc)
 {
 	OverlayLyric* pLrc = (OverlayLyric*)lrc;
 	pLrc->HideWnd();
