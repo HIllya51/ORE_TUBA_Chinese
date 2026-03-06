@@ -128,26 +128,6 @@ def tranparse(origin, dd):
 
 import json
 
-
-def simplereplace(originfn, trans: str, savefn):
-    with open(originfn, "rb") as ff:
-        origin = ff.read()
-    with open(trans, "r", encoding="utf8") as ff:
-        trans: dict[str, str] = json.loads(ff.read())
-    print(origin.decode("cp932", "ignore"))
-    print(trans)
-    for k in trans:
-        print(k[10:])
-        l1 = len(k[10:].encode("cp932"))
-        l2 = len(trans[k].encode("cp936"))
-        origin = origin.replace(
-            b"\0" + k[10:].encode("cp932"),
-            b"\0" + trans[k].encode("cp936") + b"\0" * (l1 - l2),
-        )
-    with open(savefn, "wb") as ff:
-        ff.write(origin)
-
-
 import re
 
 for current in ["CHS"]:  # ,'CHT']:
@@ -177,6 +157,9 @@ for current in ["CHS"]:  # ,'CHT']:
             line = translines[i]
             if line.startswith("●"):
                 translines[i] = translines[i].replace("ＭＳ Gothic", "微软雅黑")
+                translines[i] = translines[i].replace("｢", "「")
+                translines[i] = translines[i].replace("｣", "」")
+                translines[i] = translines[i].replace("・", "·")
             if line.startswith("●00009D6E●"):
                 translines[i] = translines[i].replace("\u0020\u0020\u0009", "")
             if line and line[0] == "○":
@@ -269,14 +252,7 @@ for current in ["CHS"]:  # ,'CHT']:
         if f[:7] == "gallery":
             continue
         fr = f.split(".")[0] + ".sob"
-        if f == "scskip.sob.txt" or f == "ssskip.sob.txt":
-            simplereplace(
-                f".\\SCRIPT.LPK\\{fr}",
-                f".\\{current}\\merge\\{f}",
-                f".\\{current}\\SCRIPT.LPK_pack\\{fr}",
-            )
-        else:
-            xx = subprocess.run(
+        xx = subprocess.run(
                 f".\\lucifen\\build\\Release\\pack.exe  .\\SCRIPT.LPK\\{fr} .\\{current}\\merge\\{f} .\\{current}\\SCRIPT.LPK_pack\\{fr}"
             )
         shutil.copy(
