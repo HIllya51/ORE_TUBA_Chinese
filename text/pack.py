@@ -156,7 +156,7 @@ for current in ["CHS"]:  # ,'CHT']:
         for i in range(len(translines)):
             line = translines[i]
             if line.startswith("●"):
-                translines[i] = translines[i].replace("ＭＳ Gothic", "微软雅黑")
+                translines[i] = translines[i].replace("ＭＳ Gothic", "宋体")
                 translines[i] = translines[i].replace("｢", "「")
                 translines[i] = translines[i].replace("｣", "」")
                 translines[i] = translines[i].replace("・", "·")
