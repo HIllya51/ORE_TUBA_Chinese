@@ -171,6 +171,8 @@ for current in ["CHS"]:  # ,'CHT']:
                     translines[i] += "。"
                 if translines[i].startswith("○000043FE○"):
                     translines[i] = translines[i].replace("。", "。。")
+                if translines[i].startswith("○00006D7D○"):
+                    translines[i] = translines[i].replace("いれ", "いい")
                 if translines[i].startswith("○0000C9E8○")  :
                     translines[i] = translines[i].replace("姨母","伯母")
                 if (
