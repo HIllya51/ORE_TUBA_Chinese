@@ -335,8 +335,11 @@ void patchsjisstrings() {
         {0x4FB8E8,selectstring("未分配","未分配")},
  
         {0x4FC2A4,selectstring("%s【存档时间 %s】","%s【存檔時間 %s】")},
+        {0x4FC294,selectstring("】","】")},
+        {0x4FC298,selectstring("【","【")},
         {0x4FC2DC,selectstring("『","『")},
         {0x4FC2B8,selectstring("』","』")},
+        {0x4FC1f4,selectstring("？？？","？？？")},
 
 
     };
