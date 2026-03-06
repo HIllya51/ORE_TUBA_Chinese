@@ -125,20 +125,26 @@ def tranparse(origin, dd):
         # dd[k]=res
         origin[usekey] = res
 
+
 import json
-def simplereplace(originfn, trans:str, savefn):
-    with open(originfn, 'rb') as ff:
-        origin=ff.read()
-    with open(trans, 'r', encoding='utf8') as ff:
-        trans:dict[str,str]=json.loads(ff.read())
-    print(origin.decode('cp932', 'ignore'))
+
+
+def simplereplace(originfn, trans: str, savefn):
+    with open(originfn, "rb") as ff:
+        origin = ff.read()
+    with open(trans, "r", encoding="utf8") as ff:
+        trans: dict[str, str] = json.loads(ff.read())
+    print(origin.decode("cp932", "ignore"))
     print(trans)
-    for k in trans: 
+    for k in trans:
         print(k[10:])
-        l1=len(k[10:].encode('cp932'))
-        l2=len(trans[k].encode('cp936'))
-        origin=origin.replace(b'\0'+k[10:].encode('cp932'), b'\0'+trans[k].encode('cp936')+b'\0'*(l1-l2))
-    with open(savefn, 'wb') as ff:
+        l1 = len(k[10:].encode("cp932"))
+        l2 = len(trans[k].encode("cp936"))
+        origin = origin.replace(
+            b"\0" + k[10:].encode("cp932"),
+            b"\0" + trans[k].encode("cp936") + b"\0" * (l1 - l2),
+        )
+    with open(savefn, "wb") as ff:
         ff.write(origin)
 
 
@@ -169,7 +175,9 @@ for current in ["CHS"]:  # ,'CHT']:
         translines = transed.split("\n")
         for i in range(len(translines)):
             line = translines[i]
-            if line.startswith('●00009D6E●'):
+            if line.startswith("●"):
+                translines[i] = translines[i].replace("ＭＳ Gothic", "微软雅黑")
+            if line.startswith("●00009D6E●"):
                 translines[i] = translines[i].replace("\u0020\u0020\u0009", "")
             if line and line[0] == "○":
                 translines[i] = re.sub('"(.*?)"', "“\\1”", line)
@@ -192,11 +200,10 @@ for current in ["CHS"]:  # ,'CHT']:
                     translines[i] = translines[i].replace("。", "。。")
                 if translines[i].startswith("○00006D7D○"):
                     translines[i] = translines[i].replace("いれ", "いい")
-                if translines[i].startswith("○0000C9E8○")  :
-                    translines[i] = translines[i].replace("姨母","伯母")
-                if (
-                    translines[i].startswith("○00007289○")
-                    or translines[i].startswith("○00006AFE○")
+                if translines[i].startswith("○0000C9E8○"):
+                    translines[i] = translines[i].replace("姨母", "伯母")
+                if translines[i].startswith("○00007289○") or translines[i].startswith(
+                    "○00006AFE○"
                 ):
                     translines[i] = translines[i].replace(" ", "")
                 if (
@@ -249,10 +256,10 @@ for current in ["CHS"]:  # ,'CHT']:
 
                 origin2[k] = origin[k][offset:]
                 origin2[k + "\n"] = origin[k][offset:] + "\n"
-            origin2_={}
+            origin2_ = {}
             for k in origin2:
-                if all(ord(_) >=10 for _ in origin2[k]):
-                    origin2_[k]=origin2[k]
+                if all(ord(_) >= 10 for _ in origin2[k]):
+                    origin2_[k] = origin2[k]
                 else:
                     print(f, origin2[k])
                     print(list(ord(_) for _ in origin2[k]))
@@ -262,12 +269,16 @@ for current in ["CHS"]:  # ,'CHT']:
         if f[:7] == "gallery":
             continue
         fr = f.split(".")[0] + ".sob"
-        if f=='scskip.sob.txt' or f=='ssskip.sob.txt':
-            simplereplace(f'.\\SCRIPT.LPK\\{fr}', f'.\\{current}\\merge\\{f}', f'.\\{current}\\SCRIPT.LPK_pack\\{fr}')
+        if f == "scskip.sob.txt" or f == "ssskip.sob.txt":
+            simplereplace(
+                f".\\SCRIPT.LPK\\{fr}",
+                f".\\{current}\\merge\\{f}",
+                f".\\{current}\\SCRIPT.LPK_pack\\{fr}",
+            )
         else:
-         xx = subprocess.run(
-            f".\\lucifen\\build\\Release\\pack.exe  .\\SCRIPT.LPK\\{fr} .\\{current}\\merge\\{f} .\\{current}\\SCRIPT.LPK_pack\\{fr}"
-        )
+            xx = subprocess.run(
+                f".\\lucifen\\build\\Release\\pack.exe  .\\SCRIPT.LPK\\{fr} .\\{current}\\merge\\{f} .\\{current}\\SCRIPT.LPK_pack\\{fr}"
+            )
         shutil.copy(
             f".\\{current}\\SCRIPT.LPK_pack\\{fr}",
             f"C:\\dataH\\俺たちに翼はない\\SCRIPT_{current}",
