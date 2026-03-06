@@ -159,6 +159,7 @@ for current in ["CHS"]:  # ,'CHT']:
                 translines[i] = translines[i].replace("千岁", "千歳")
                 translines[i] = translines[i].replace("幺弟", "末弟")
                 translines[i] = translines[i].replace("幺弟", "末弟")
+                translines[i] = translines[i].replace("  	", "")
                 if (
                     translines[i].startswith("○0000AF96○")
                     or translines[i].startswith("○00008FA8○")
@@ -230,7 +231,14 @@ for current in ["CHS"]:  # ,'CHT']:
 
                 origin2[k] = origin[k][offset:]
                 origin2[k + "\n"] = origin[k][offset:] + "\n"
-            _.write(json.dumps(origin2, ensure_ascii=False))
+            origin2_={}
+            for k in origin2:
+                if all(ord(_) >=10 for _ in origin2[k]):
+                    origin2_[k]=origin2[k]
+                else:
+                    print(f, origin2[k])
+                    print(list(ord(_) for _ in origin2[k]))
+            _.write(json.dumps(origin2_, ensure_ascii=False))
 
     for f in tqdm(os.listdir(current + "/merge")):
         if f[:7] == "gallery":
