@@ -24,7 +24,7 @@ void OverlayLyric::ReleaseGdiplus() {
 
 OverlayLyric::OverlayLyric(int type,HINSTANCE hInst,HWND parent, HLRC connecthlrc) : Wnd(hInst) {
 	m_type=type;
-	wcscpy_s(mFontInfo.FontName, L"����");
+	wcscpy_s(mFontInfo.FontName, L"微软雅黑");
 	mFontInfo.FontSize = 42;
 	mFontInfo.ForeColor1 = 0xFF013C8F;
 	mFontInfo.ForeColor2 = 0xFF0198D4;
