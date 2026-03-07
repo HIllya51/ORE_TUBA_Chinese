@@ -1,3 +1,5 @@
 TIPSPNG PNG "TIPS.png"
 showatfirst PNG "11111.png"
+showatfirst2 PNG "111.png"
+showatfirst3 PNG "222.png"
 TIPSJSON TXT "tips.json"

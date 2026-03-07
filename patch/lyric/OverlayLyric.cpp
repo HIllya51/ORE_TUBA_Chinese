@@ -331,7 +331,7 @@ BOOL OverlayLyric::Update()
 		graphics.DrawImage(bmp, 0, 0, bmp->GetWidth(), bmp->GetHeight());
 	}
 	else if(m_type==3){
-		auto bmp=LoadResImage(L"showatfirst");
+		auto bmp=LoadResImage(multiimageidx==0?L"showatfirst":(multiimageidx==1?L"showatfirst2":L"showatfirst3"));
 		graphics.DrawImage(bmp, 0, 0, bmp->GetWidth(), bmp->GetHeight());
 		graphics.DrawImage(bmp, 0, 0, winSize.cx, winSize.cy);
 	}
@@ -375,23 +375,17 @@ void OverlayLyric::HideWnd()
 #include<mutex>
 LRESULT OverlayLyric::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 	HWND hWnd = GetHandle();
-	static std::mutex _m;
-	static bool hided = false;
 	auto hideandnotify = [this]() {
-		std::lock_guard<std::mutex> _(_m);
-		if (hided)return;
-		hided = true;
+		if(multiimageidx<2){
+			multiimageidx+=1;
+			Update();
+			return;}
+		ShowWindow(GetHandle(), SW_HIDE);
 		HideWnd();
-		SECURITY_DESCRIPTOR sd;
-		InitializeSecurityDescriptor(&(sd), 1);
-		SetSecurityDescriptorDacl(&(sd), 1, 0, 0);
-		SECURITY_ATTRIBUTES allacc;
-		allacc.nLength = sizeof(allacc);
-		allacc.bInheritHandle = 0;
-		allacc.lpSecurityDescriptor = &(sd);
-		auto event=CreateEventW(&allacc, 0, 0, L"LIANYUYUEKUANGBING_SHOW_THANKS");
+		auto event=CreateEventW(nullptr, 0, 0, L"LIANYUYUEKUANGBING_SHOW_THANKS");
 		SetEvent(event);
 		CloseHandle(event);
+
 	};
 	switch (message)
 	{
@@ -411,12 +405,12 @@ LRESULT OverlayLyric::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) 
 		SetWindowPos(hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
 		SetTimer(hWnd, IDT_MOUSETRAP, 100, NULL);
-		std::thread([hideandnotify]() {
-			
+		std::thread([hideandnotify](std::atomic<int> &ref) {
+			while(ref<3){
 			Sleep(5000);
 			hideandnotify();
-
-			}).detach();
+			}
+			}, std::ref(multiimageidx)).detach();
 	}
 	break;
 	case WM_KEYDOWN: {
@@ -427,8 +421,7 @@ LRESULT OverlayLyric::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) 
 	}
 	case WM_LBUTTONDOWN:  //��갴��
 	{
-		if(m_type!=1){
-		ShowWindow(hWnd, SW_HIDE);
+		if(m_type==3){
 		hideandnotify();}
 		//SetCapture(hWnd);	//��ռ�����Ϣ
 		//mMouseXY.y = HIWORD(lParam);

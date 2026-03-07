@@ -4,6 +4,7 @@
 #include <gdiplus.h>
 #include <gdipluseffects.h>
 #include<utility>
+#include<atomic>
 #include"lyric.h"
 using namespace Gdiplus;
 
@@ -26,7 +27,7 @@ enum class DefaultColorStyle{
 	Yellow = 5
 };
 
-class OverlayLyric : private Wnd
+class OverlayLyric : public Wnd
 {
 public:
 	OverlayLyric(int type,HINSTANCE hInst = NULL,HWND parent=0,HLRC connecthlrc=0);
@@ -50,6 +51,7 @@ public:
 	void ShowWnd();
 	void HideWnd();
 private:
+	std::atomic<int> multiimageidx=0;
 	HLRC mconnecthlrc=0;int m_type;
 	POINT mMouseXY = { 0 };
 	BOOL mIsMousePrees = FALSE;

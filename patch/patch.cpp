@@ -185,7 +185,7 @@ namespace hooks{
 
             createtipswindow(hwnd);
             gamehwnd = hwnd;
-            SetWindowTextW(gamehwnd,(StringToWideString(lpWindowName,CP_ACP)+L" The Strongest Hyper MASTER-HOMO × BRANDNEW THE-RICE").c_str());
+            SetWindowTextW(gamehwnd,(StringToWideString(lpWindowName,CP_ACP)+L" 三号布丁ver3.0  The Strongest Hyper Master-Homo × 新米").c_str());
         }
         return hwnd;
 
@@ -257,6 +257,14 @@ namespace hooks{
         lpLogfont->lfCharSet = GB2312_CHARSET;
         return EnumFontFamiliesExAs(hdc, lpLogfont, lpProc, lParam, dwFlags);
     }
+    auto DialogBoxParamAS = DialogBoxParamA;
+    INT_PTR  WINAPI DialogBoxParamAH(_In_opt_ HINSTANCE hInstance,
+    _In_ LPCSTR lpTemplateName,
+    _In_opt_ HWND hWndParent,
+    _In_opt_ DLGPROC lpDialogFunc,
+    _In_ LPARAM dwInitParam) {
+        return DialogBoxParamAS(hInstance, lpTemplateName, hWndParent, lpDialogFunc, dwInitParam);
+    }
     auto showwindow=ShowWindow;
     bool showindowonce=true;
     BOOL
@@ -269,17 +277,9 @@ namespace hooks{
                 if(showindowonce)
                 {
                     showindowonce=false;
-                    SECURITY_DESCRIPTOR sd;
-                    InitializeSecurityDescriptor(&(sd),1); 
-                    SetSecurityDescriptorDacl(&(sd), 1, 0, 0);
-                    SECURITY_ATTRIBUTES allacc; 
-                    allacc.nLength=sizeof(allacc);
-                    allacc.bInheritHandle=0;
-                    allacc.lpSecurityDescriptor=&(sd);
-                    auto event=CreateEventW(&allacc,0,0, L"LIANYUYUEKUANGBING_SHOW_THANKS");
-                    while(WaitForSingleObject(event,5)!=WAIT_OBJECT_0){
+                    auto event=CreateEventW(nullptr,0,0, L"LIANYUYUEKUANGBING_SHOW_THANKS");
                         MSG msg;
-                        GetMessage(&msg, nullptr, 0, 0);
+                    while(GetMessage(&msg, nullptr, 0, 0) && WaitForSingleObject(event,5)!=WAIT_OBJECT_0){
                      
                         TranslateMessage(&msg);
                         DispatchMessage(&msg);
@@ -304,6 +304,7 @@ namespace hooks{
         DetourAttach(&(PVOID&)sub_477390, sub_477390H);
         DetourAttach(&(PVOID&)sub_455ab0, sub_455ab0H);
         DetourAttach(&(PVOID&)showwindow, ShowWindow);
+        DetourAttach(&(PVOID&)DialogBoxParamAS, DialogBoxParamAH);
         DetourTransactionCommit(); 
     }
     
