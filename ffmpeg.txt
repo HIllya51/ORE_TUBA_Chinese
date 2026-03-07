@@ -1,1 +1,3 @@
 ffmpeg -i mp2op1.mpg -cv mpeg1video -bv 15000k -ca copy output.mpg
+或
+ffmpeg -i op1.mp4 -c:v mpeg1video -b:v 15000k -c:a mp3 output.mpg
