@@ -376,6 +376,7 @@ void OverlayLyric::HideWnd()
 LRESULT OverlayLyric::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) {
 	HWND hWnd = GetHandle();
 	auto hideandnotify = [this]() {
+		if(m_type!=3)return;
 		if(multiimageidx<2){
 			multiimageidx+=1;
 			Update();
@@ -421,8 +422,7 @@ LRESULT OverlayLyric::HandleMessage(UINT message, WPARAM wParam, LPARAM lParam) 
 	}
 	case WM_LBUTTONDOWN:  //��갴��
 	{
-		if(m_type==3){
-		hideandnotify();}
+		hideandnotify();
 		//SetCapture(hWnd);	//��ռ�����Ϣ
 		//mMouseXY.y = HIWORD(lParam);
 		//mMouseXY.x = LOWORD(lParam);

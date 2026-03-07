@@ -148,7 +148,7 @@ namespace hooks{
         showtipswindow = CreateLyric(0,gamehwnd,0);
         button = CreateLyric(1,gamehwnd, showtipswindow); 
 
-        SetLyricFontA(showtipswindow, "黑体", 18);
+        SetLyricFontA(showtipswindow, "微软雅黑", 18);
          
         RECT rect;
         GetWindowRect(gamehwnd, &rect);
