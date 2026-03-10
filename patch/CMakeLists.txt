@@ -23,9 +23,9 @@ include_directories(Detours-4.0.1/include)
 add_library(lyric lyric/lyric.cpp lyric/OverlayLyric.cpp lyric/Wnd.cpp)
 
 add_library(ORE_TUBA_CHS MODULE patch.cpp patch.rc)   
-target_link_libraries(ORE_TUBA_CHS Gdiplus Shlwapi lyric ${CMAKE_CURRENT_SOURCE_DIR}/Detours-4.0.1/lib.X86/detours.lib)
+target_link_libraries(ORE_TUBA_CHS Gdiplus Shlwapi lyric ${CMAKE_CURRENT_SOURCE_DIR}/Detours-4.0.1/lib.X86/detours.lib ${CMAKE_CURRENT_SOURCE_DIR}/YY_Thunks_for_Win7.obj)
 add_library(ORE_TUBA_CHT MODULE patch.cpp patch.rc)   
 target_compile_definitions(ORE_TUBA_CHT PRIVATE ISCHT)
-target_link_libraries(ORE_TUBA_CHT Gdiplus Shlwapi lyric ${CMAKE_CURRENT_SOURCE_DIR}/Detours-4.0.1/lib.X86/detours.lib)
+target_link_libraries(ORE_TUBA_CHT Gdiplus Shlwapi lyric ${CMAKE_CURRENT_SOURCE_DIR}/Detours-4.0.1/lib.X86/detours.lib ${CMAKE_CURRENT_SOURCE_DIR}/YY_Thunks_for_Win7.obj)
 
  

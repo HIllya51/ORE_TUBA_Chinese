@@ -253,7 +253,7 @@ for current in ["CHS"]:  # ,'CHT']:
             continue
         fr = f.split(".")[0] + ".sob"
         xx = subprocess.run(
-                f".\\lucifen\\build\\Release\\pack.exe  .\\SCRIPT.LPK\\{fr} .\\{current}\\merge\\{f} .\\{current}\\SCRIPT.LPK_pack\\{fr}"
+                f".\\lucifen\\build\\pack.exe  .\\SCRIPT.LPK\\{fr} .\\{current}\\merge\\{f} .\\{current}\\SCRIPT.LPK_pack\\{fr}"
             )
         shutil.copy(
             f".\\{current}\\SCRIPT.LPK_pack\\{fr}",

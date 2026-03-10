@@ -82,7 +82,7 @@ int checkeng(std::string x) {
     }
     return i;
 }
-void packstring(FILE* f, std::string  my, std::string  jp, int savestringp, int saveallstringlen, int header_end) {
+void packstring(FILE* f, std::string  my, std::string  jp, int savestringp, int saveallstringlen, int header_end, std::string& code, int pos) {
     char x[10] = { 0 };
     if(false){// (my.length() <= jp.length()) {
         int l = jp.length() - my.length();
@@ -94,19 +94,20 @@ void packstring(FILE* f, std::string  my, std::string  jp, int savestringp, int 
     else {
         int off = 0;
         if (my[my.length() - 1] == '$')off = 3;
-
+        
+    //printf("%x  \n",pos);
         int xxx = savestringp;
         fseek(f, savestringp, SEEK_SET);
         fread(&xxx, 4, 1, f);
         //   printf("%08X\n", xxx);
         fseek(f, 0, SEEK_END);
 
-        fwrite(&x, 4, 1, f);
+        fwrite(code.substr(pos, 3).c_str(), 3, 1, f);
         unsigned int stringstart = ftell(f) - header_end - off;
 
         
         fwrite(my.c_str(), 1, my.length(), f);
-        fwrite(&x, 4, 1, f);
+        fwrite(x, 1, 1, f);
 
         int end = ftell(f) - header_end;
         fseek(f, savestringp, SEEK_SET);
@@ -119,6 +120,22 @@ void packstring(FILE* f, std::string  my, std::string  jp, int savestringp, int 
 
 
 
+}
+std::string readcode(FILE* f){
+    auto curr=ftell(f);
+    fseek(f, 4, SEEK_SET);
+    int offset1;
+    fread(&offset1, 4, 1, f);
+    fseek(f, 12+offset1,  SEEK_SET);
+    int size;
+    fread(&size, 4, 1, f);
+    int offset= 16+offset1;
+    std::string data;
+    data.resize(size);
+    fseek(f, offset,  SEEK_SET);
+    fread((void*)data.data(), size, 1, f);
+    fseek(f, curr, SEEK_SET);
+    return data;
 }
 int main(int argc, char** argv)
 {
@@ -133,6 +150,7 @@ int main(int argc, char** argv)
     } */
 
     auto f = fopen(argv[1], "rb");//Դsob
+    auto code=readcode(f);
     fseek(f, 0, SEEK_END);
     int end = ftell(f);
     fseek(f, 0, SEEK_SET);
@@ -273,7 +291,7 @@ int main(int argc, char** argv)
                              //   printf("%s\n", str.c_str());
                             std::string gkbstr = WStrToStr(StrToWStr(trans.at(u8str),65001), 936);
                             fseek(f_pack, start, SEEK_SET);
-                            packstring(f_pack, gkbstr, str, reverse.at(address), stringendp, header_end);
+                            packstring(f_pack, gkbstr, str, reverse.at(address), stringendp, header_end, code, maps[4][address]);
                         }
                     }
                     else {
