@@ -104,7 +104,7 @@ def tranparse(origin, dd):
             pre = res[:_res]
             res = res[_res:]
 
-        if res[0] == "<":
+        if res[0] == "<" or res[:2] == "　<":
             idx = res.index(">") + 1
             pre += res[:idx]
             res = res[idx:]
